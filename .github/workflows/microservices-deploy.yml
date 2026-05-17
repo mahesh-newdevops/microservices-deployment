@@ -1,0 +1,142 @@
+name: Deploy Microservices To Minikube
+
+on:
+
+  workflow_dispatch:
+
+    inputs:
+
+      action:
+        description: "deploy or destroy"
+        required: true
+        type: choice
+
+        options:
+          - deploy
+          - destroy
+
+permissions:
+  contents: read
+
+jobs:
+
+  deploy:
+
+    runs-on: self-hosted
+
+    env:
+      NAMESPACE: microservices
+
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Verify Docker
+      run: docker --version
+
+    - name: Verify Kubectl
+      run: kubectl version --client
+
+    - name: Verify Minikube
+      run: minikube status
+
+    - name: Set Minikube Docker Environment
+      shell: bash
+      run: |
+        eval $(minikube docker-env)
+
+        echo "DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $GITHUB_ENV
+        echo "DOCKER_HOST=$DOCKER_HOST" >> $GITHUB_ENV
+        echo "DOCKER_CERT_PATH=$DOCKER_CERT_PATH" >> $GITHUB_ENV
+        echo "MINIKUBE_ACTIVE_DOCKERD=$MINIKUBE_ACTIVE_DOCKERD" >> $GITHUB_ENV
+
+    - name: Create Namespace
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/namespace.yaml
+
+    - name: Build Frontend Image
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker build -t frontend:latest ./frontend
+
+    - name: Build User Service Image
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker build -t user-service:latest ./user-service
+
+    - name: Build Order Service Image
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker build -t order-service:latest ./order-service
+
+    - name: Build Payment Service Image
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker build -t payment-service:latest ./payment-service
+
+    - name: Build Notification Service Image
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker build -t notification-service:latest ./notification-service
+
+    - name: Deploy Redis
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/redis/
+
+    - name: Deploy PostgreSQL
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/postgres/
+
+    - name: Deploy Frontend
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/frontend/
+
+    - name: Deploy User Service
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/user-service/
+
+    - name: Deploy Order Service
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/order-service/
+
+    - name: Deploy Payment Service
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/payment-service/
+
+    - name: Deploy Notification Service
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/notification-service/
+
+    - name: Deploy Ingress
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl apply -f k8s/ingress/
+
+    - name: Verify Pods
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl get pods -n microservices
+
+    - name: Verify Services
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl get svc -n microservices
+
+    - name: Verify Ingress
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl get ingress -n microservices
+
+    - name: Destroy Application
+      if: github.event.inputs.action == 'destroy'
+      run: |
+        kubectl delete namespace microservices --ignore-not-found=true

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: microservices
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: postgres
+
+  template:
+    metadata:
+      labels:
+        app: postgres
+
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+
+        env:
+        - name: POSTGRES_USER
+          value: admin
+
+        - name: POSTGRES_PASSWORD
+          value: admin123
+
+        - name: POSTGRES_DB
+          value: microservices
+
+        ports:
+        - containerPort: 5432
