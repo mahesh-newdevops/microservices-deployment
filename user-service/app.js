@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-app.get('/', (req, res) => {
+app.get('/users', (req, res) => {
   res.json({
     service: 'user-service',
     status: 'running'
