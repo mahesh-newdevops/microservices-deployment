@@ -26,6 +26,7 @@ jobs:
 
     env:
       NAMESPACE: microservices
+      KUBECONFIG: /home/devops/.kube/config
 
     steps:
 
@@ -38,12 +39,25 @@ jobs:
     - name: Verify Kubectl
       run: kubectl version --client
 
-    - name: Verify Minikube
-      run: minikube status
+    - name: Ensure Minikube Running
+      run: |
+        minikube start --driver=docker
+
+    - name: Fix Minikube Context
+      run: |
+
+        minikube update-context
+
+        kubectl config current-context
+
+        kubectl get nodes
+
+        minikube status
 
     - name: Set Minikube Docker Environment
       shell: bash
       run: |
+
         eval $(minikube docker-env)
 
         echo "DOCKER_TLS_VERIFY=$DOCKER_TLS_VERIFY" >> $GITHUB_ENV
@@ -80,6 +94,11 @@ jobs:
       if: github.event.inputs.action == 'deploy'
       run: |
         docker build -t notification-service:latest ./notification-service
+
+    - name: Verify Docker Images
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        docker images
 
     - name: Deploy Redis
       if: github.event.inputs.action == 'deploy'
@@ -121,10 +140,19 @@ jobs:
       run: |
         kubectl apply -f k8s/ingress/
 
+    - name: Wait For Pods
+      if: github.event.inputs.action == 'deploy'
+      run: |
+        kubectl wait \
+        --for=condition=Ready pods \
+        --all \
+        -n microservices \
+        --timeout=300s
+
     - name: Verify Pods
       if: github.event.inputs.action == 'deploy'
       run: |
-        kubectl get pods -n microservices
+        kubectl get pods -n microservices -o wide
 
     - name: Verify Services
       if: github.event.inputs.action == 'deploy'
@@ -135,6 +163,16 @@ jobs:
       if: github.event.inputs.action == 'deploy'
       run: |
         kubectl get ingress -n microservices
+
+    - name: Describe Pods On Failure
+      if: failure()
+      run: |
+        kubectl describe pods -n microservices
+
+    - name: Pod Logs On Failure
+      if: failure()
+      run: |
+        kubectl logs -n microservices --all-containers=true --tail=100
 
     - name: Destroy Application
       if: github.event.inputs.action == 'destroy'
