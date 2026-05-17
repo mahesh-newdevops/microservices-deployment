@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-app.get('/payments', (req, res) => {
+app.get('/', (req, res) => {
   res.json({
     service: 'payment-service',
     status: 'running'

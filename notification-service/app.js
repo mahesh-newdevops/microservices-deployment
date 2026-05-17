@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-app.get('/notifications', (req, res) => {
+app.get('/', (req, res) => {
   res.json({
     service: 'notification-service',
     status: 'running'
