@@ -41,14 +41,12 @@ jobs:
       run: |
         kubectl version --client
 
-    - name: Verify Minikube Running
-      run: |
-        minikube status
-
     - name: Fix Minikube Context
       run: |
 
-        minikube update-context
+        minikube update-context -p minikube
+
+        kubectl config use-context minikube
 
         kubectl config current-context
 
