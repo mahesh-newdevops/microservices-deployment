@@ -41,9 +41,9 @@ jobs:
       run: |
         kubectl version --client
 
-    - name: Ensure Minikube Running
+    - name: Verify Minikube Running
       run: |
-        minikube start --driver=docker
+        minikube status
 
     - name: Fix Minikube Context
       run: |
@@ -55,21 +55,6 @@ jobs:
         kubectl get nodes
 
         minikube status
-
-    - name: Enable NGINX Ingress
-      run: |
-        minikube addons enable ingress
-
-    - name: Wait For NGINX Ingress Controller
-      run: |
-
-        kubectl wait \
-        --namespace ingress-nginx \
-        --for=condition=ready pod \
-        --selector=app.kubernetes.io/component=controller \
-        --timeout=300s
-
-        kubectl get pods -n ingress-nginx
 
     - name: Set Minikube Docker Environment
       shell: bash

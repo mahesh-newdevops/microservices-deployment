@@ -27,5 +27,19 @@ spec:
 
         imagePullPolicy: Never
 
+        env:
+        - name: NODE_OPTIONS
+          value: "--require @opentelemetry/auto-instrumentations-node/register"
+        - name: OTEL_SERVICE_NAME
+          value: notification-service
+        - name: OTEL_TRACES_EXPORTER
+          value: otlp
+        - name: OTEL_METRICS_EXPORTER
+          value: none
+        - name: OTEL_LOGS_EXPORTER
+          value: none
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+
         ports:
         - containerPort: 3000
