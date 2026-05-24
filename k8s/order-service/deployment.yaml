@@ -5,7 +5,7 @@ metadata:
   namespace: microservices
 
 spec:
-  replicas: 2
+  replicas: 1
 
   selector:
     matchLabels:
@@ -40,6 +40,12 @@ spec:
           value: none
         - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
           value: http://alloy.monitoring.svc.cluster.local:4318/v1/traces
+        - name: USER_SERVICE_URL
+          value: http://user-service.microservices.svc.cluster.local
+        - name: PAYMENT_SERVICE_URL
+          value: http://payment-service.microservices.svc.cluster.local
+        - name: NOTIFICATION_SERVICE_URL
+          value: http://notification-service.microservices.svc.cluster.local
 
         ports:
         - containerPort: 3000

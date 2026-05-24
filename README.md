@@ -40,6 +40,41 @@ Routes:
 /               -> frontend
 ```
 
+After the app is deployed, open the frontend and use the forms to create demo data:
+
+```text
+http://microservices.local/
+```
+
+You can also test the service-to-service flow with curl:
+
+```bash
+curl -s -X POST http://microservices.local/users/users \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Anaya","email":"anaya@example.com"}'
+
+curl -s -X POST http://microservices.local/orders/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"userId":"1","item":"minikube-checkout","amount":49.99}'
+```
+
+The order request calls:
+
+```text
+order-service -> user-service
+order-service -> payment-service
+order-service -> notification-service
+```
+
+To inspect stored demo data:
+
+```bash
+curl -s http://microservices.local/users/users
+curl -s http://microservices.local/orders/orders
+curl -s http://microservices.local/payments/payments
+curl -s http://microservices.local/notifications/notifications
+```
+
 ## Argo CD Deployment
 
 Install Argo CD in Minikube first, then apply:
