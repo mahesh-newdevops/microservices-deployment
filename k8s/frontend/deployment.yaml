@@ -19,9 +19,9 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: frontend:latest
+        image: jatinsai/frontend:v1.0.0
 
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 
         ports:
         - containerPort: 80

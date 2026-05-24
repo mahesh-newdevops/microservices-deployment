@@ -23,9 +23,9 @@ spec:
     spec:
       containers:
       - name: payment-service
-        image: payment-service:latest
+        image: jatinsai/payment-service:v1.0.0
 
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 
         env:
         - name: NODE_OPTIONS

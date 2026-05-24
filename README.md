@@ -14,9 +14,43 @@ Minikube deployment for a small microservices demo.
 
 All Kubernetes resources deploy into the `microservices` namespace.
 
+## Images
+
+The Kubernetes manifests pull public images from Docker Hub:
+
+```text
+jatinsai/frontend:v1.0.0
+jatinsai/user-service:v1.0.0
+jatinsai/order-service:v1.0.0
+jatinsai/payment-service:v1.0.0
+jatinsai/notification-service:v1.0.0
+```
+
+Build and push images after changing application code:
+
+```bash
+docker login
+
+IMAGE_TAG=v1.0.0
+
+docker build -t jatinsai/frontend:${IMAGE_TAG} ./frontend
+docker build -t jatinsai/user-service:${IMAGE_TAG} ./user-service
+docker build -t jatinsai/order-service:${IMAGE_TAG} ./order-service
+docker build -t jatinsai/payment-service:${IMAGE_TAG} ./payment-service
+docker build -t jatinsai/notification-service:${IMAGE_TAG} ./notification-service
+
+docker push jatinsai/frontend:${IMAGE_TAG}
+docker push jatinsai/user-service:${IMAGE_TAG}
+docker push jatinsai/order-service:${IMAGE_TAG}
+docker push jatinsai/payment-service:${IMAGE_TAG}
+docker push jatinsai/notification-service:${IMAGE_TAG}
+```
+
+For the next release, build and push a new tag such as `v1.0.1`, update the image tags in `k8s/*/deployment.yaml`, then push the Git change. Argo CD will detect the manifest diff and deploy the new image version.
+
 ## Minikube Deployment
 
-The GitHub Actions workflow in `.github/workflows/microservices-deploy.yml` runs on a self-hosted runner, verifies Minikube is already running, builds the local Docker images inside Minikube's Docker daemon, and applies the manifests in `k8s/`.
+The GitHub Actions workflow in `.github/workflows/microservices-deploy.yml` runs on a self-hosted runner, verifies Minikube is already running, and applies the manifests in `k8s/`.
 
 Minikube startup is owned by the `gitops-platform-minikube` repository workflow:
 
@@ -83,18 +117,7 @@ Install Argo CD in Minikube first, then apply:
 kubectl apply -f argocd/microservices-deployment.yaml
 ```
 
-Argo CD syncs the `k8s/` kustomization from this repository.
-
-Important: these manifests use local images such as `user-service:latest` with `imagePullPolicy: Never`. Build the images inside Minikube before Argo CD syncs the application:
-
-```bash
-eval $(minikube docker-env)
-docker build -t frontend:latest ./frontend
-docker build -t user-service:latest ./user-service
-docker build -t order-service:latest ./order-service
-docker build -t payment-service:latest ./payment-service
-docker build -t notification-service:latest ./notification-service
-```
+Argo CD syncs the `k8s/` kustomization from this repository. Since the images are public Docker Hub images, Minikube pulls them directly and no image pull secret is required.
 
 ## OpenTelemetry Traces
 

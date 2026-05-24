@@ -23,9 +23,9 @@ spec:
     spec:
       containers:
       - name: order-service
-        image: order-service:latest
+        image: jatinsai/order-service:v1.0.0
 
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 
         env:
         - name: NODE_OPTIONS

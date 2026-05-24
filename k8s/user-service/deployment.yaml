@@ -23,9 +23,9 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: user-service:latest
+        image: jatinsai/user-service:v1.0.0
 
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
 
         env:
         - name: NODE_OPTIONS
