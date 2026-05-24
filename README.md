@@ -48,6 +48,30 @@ docker push jatinsai/notification-service:${IMAGE_TAG}
 
 For the next release, build and push a new tag such as `v1.0.1`, update the image tags in `k8s/*/deployment.yaml`, then push the Git change. Argo CD will detect the manifest diff and deploy the new image version.
 
+## SonarQube Scan
+
+The GitHub Actions workflow `.github/workflows/sonarqube-scan.yml` runs SonarQube analysis on pushes and pull requests to `main`.
+
+Configure this GitHub secret before running it:
+
+```text
+SONAR_TOKEN
+```
+
+The scanner reads project settings from:
+
+```text
+sonar-project.properties
+```
+
+The default project key is:
+
+```text
+mahesh-newdevops_microservices-deployment
+```
+
+If your SonarQube Cloud project uses a different key or organization, update `sonar.projectKey` and `sonar.organization`.
+
 ## Minikube Deployment
 
 The GitHub Actions workflow in `.github/workflows/microservices-deploy.yml` runs on a self-hosted runner, verifies Minikube is already running, and applies the manifests in `k8s/`.

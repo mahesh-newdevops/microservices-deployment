@@ -1,0 +1,50 @@
+name: SonarQube Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install user-service dependencies
+        working-directory: user-service
+        run: npm install
+
+      - name: Install order-service dependencies
+        working-directory: order-service
+        run: npm install
+
+      - name: Install payment-service dependencies
+        working-directory: payment-service
+        run: npm install
+
+      - name: Install notification-service dependencies
+        working-directory: notification-service
+        run: npm install
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
