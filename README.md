@@ -133,15 +133,15 @@ curl -s http://microservices.local/payments/payments
 curl -s http://microservices.local/notifications/notifications
 ```
 
-## Argo CD Deployment
+## GitOps Deployment
 
-Install Argo CD in Minikube first, then apply:
+Argo CD deployment configuration is owned by the `gitops-platform-minikube`
+repository. That repo defines the Argo CD `Application` which syncs the `k8s/`
+kustomization from this repository into the `microservices` namespace.
 
-```bash
-kubectl apply -f argocd/microservices-deployment.yaml
-```
-
-Argo CD syncs the `k8s/` kustomization from this repository. Since the images are public Docker Hub images, Minikube pulls them directly and no image pull secret is required.
+Keep this repository focused on application code, container build files, and
+Kubernetes workload manifests. Do not add Argo CD `Application` or `AppProject`
+manifests here.
 
 ## OpenTelemetry Traces
 
